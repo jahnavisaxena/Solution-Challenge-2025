@@ -3,83 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aurelian - Gen AI</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Aurelian AI</title>
+    <script>
+        async function generatePlan() {
+            const age = document.getElementById("age").value;
+            const job = document.getElementById("job").value;
+            const output = document.getElementById("output");
+
+            if (!age || age <= 0 || !job) {
+                output.innerHTML = "<p style='color: red;'>Invalid input. Please enter a valid age and job.</p>";
+                return;
+            }
+
+            const response = await fetch("/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ age, job })
+            });
+
+            const data = await response.json();
+            output.innerHTML = data.generated_text ? `<p>${data.generated_text}</p>` : `<p style='color: red;'>Error: ${data.error}</p>`;
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const heading = document.getElementById("typing-effect");
+            const text = "Aurelian AI";
+            let index = 0;
+
+            function typeText() {
+                if (index < text.length) {
+                    heading.innerHTML += text.charAt(index);
+                    index++;
+                    setTimeout(typeText, 150);
+                }
+            }
+            typeText();
+        });
+    </script>
     <style>
-        .custom-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+        body {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            background-image: radial-gradient(circle at top right, rgba(121, 68, 154, 0.13), transparent),
+                radial-gradient(circle at 20% 80%, rgba(41, 196, 255, 0.13), transparent);
             color: white;
-            padding: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease-in-out;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            border: 8px solid rgb(250,183,0);
+            margin: 0;
+            box-sizing: border-box;
+            overflow: hidden;
         }
-        .custom-input:focus {
-            border-color: #0d6efd;
-            background: rgba(255, 255, 255, 0.2);
-            outline: none;
-            box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+        .container {
+            max-width: 500px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
         }
-        .custom-btn {
-            background: linear-gradient(135deg, #0d6efd, #6610f2);
-            border: none;
-            padding: 10px 15px;
+        h1 {
+            font-size: 50px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid rgb(250,183,0);
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        input {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            background-color: rgba(0, 29, 61, 0.1);
             border-radius: 8px;
             color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
         }
-        .custom-btn:hover {
-            background: linear-gradient(135deg, #6610f2, #0d6efd);
-            box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+        button {
+            width: 90%;
+            padding: 14px;
+            background-color: rgb(250,183,0);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: rgb(103, 76, 4);
+            transform: scale(1.05);
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
         }
     </style>
 </head>
-<body class="bg-dark text-white" >
-    <div class="container py-5" >
-        <h1 class="text-center mb-4">Aurelian - Gen AI</h1>
-        
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="age" class="form-label">Enter your age:</label>
-                <input type="number" id="age" class="form-control custom-input" placeholder="Enter age">
-            </div>
-            <div class="col-md-6">
-                <label for="job" class="form-label">Enter your job:</label>
-                <input type="text" id="job" class="form-control custom-input" placeholder="Enter job title">
-            </div>
-        </div>
-        
-        <button onclick="generatePlans()" class="btn custom-btn w-100">Generate Plans</button>
-        
-        <div class="mt-4 p-3 border border-secondary rounded" id="output-box" style="min-height: 50px;">
-            <p class="text-muted">Your plans will be displayed here...</p>
-        </div>
+<body>
+    <canvas></canvas>
+    <div class="container">
+        <h1 id="typing-effect"></h1>
+        <h2>Your Investment Assistant</h2>
+        <input type="number" id="age" placeholder="Enter your age" min="1">
+        <input type="text" id="job" placeholder="Enter your job">
+        <button onclick="generatePlan()">Generate Plan</button>
+        <div id="output"></div>
     </div>
-    
     <script>
-        function generatePlans() {
-            let age = document.getElementById('age').value.trim();
-            let job = document.getElementById('job').value.trim();
-            let outputBox = document.getElementById('output-box');
-            
-            if (age === "" || job === "") {
-                outputBox.innerHTML = `<p class='text-danger'>Please enter both age and job.</p>`;
-                return;
-            }
-            
-            age = parseInt(age);
-            if (age < 0) {
-                outputBox.innerHTML = `<p class='text-danger'>Invalid input: Age cannot be negative.</p>`;
-                return;
-            }
-            
-            outputBox.innerHTML = `<p>Generating plans for a ${age}-year-old ${job}...</p>`;
+        // Star background animation script
+        const STAR_COLOR = '#fff';
+        const STAR_SIZE = 3;
+        const STAR_MIN_SCALE = 0.2;
+        const OVERFLOW_THRESHOLD = 50;
+        const STAR_COUNT = (window.innerWidth + window.innerHeight) / 8;
+        const canvas = document.querySelector('canvas'),
+              context = canvas.getContext('2d');
+
+        let width, height, stars = [];
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            stars = Array.from({ length: STAR_COUNT }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                z: STAR_MIN_SCALE + Math.random() * (1 - STAR_MIN_SCALE)
+            }));
         }
+        function update() {
+            stars.forEach(star => {
+                star.x += 0.5;
+                if (star.x > width) star.x = 0;
+            });
+        }
+        function render() {
+            context.clearRect(0, 0, width, height);
+            stars.forEach(star => {
+                context.fillStyle = STAR_COLOR;
+                context.beginPath();
+                context.arc(star.x, star.y, STAR_SIZE * star.z, 0, 2 * Math.PI);
+                context.fill();
+            });
+        }
+        function animate() {
+            update();
+            render();
+            requestAnimationFrame(animate);
+        }
+        window.onresize = resize;
+        resize();
+        animate();
     </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
