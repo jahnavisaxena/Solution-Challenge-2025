@@ -1,12 +1,17 @@
 from flask import Flask, render_template, request, jsonify
-import requests
-import os  # For environment variables (optional)
+import google.generativeai as genai
+import os
 
 app = Flask(__name__)
 
-# Store your API key securely (recommended: set it in an environment variable)
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
-GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateText?key={GEMINI_API_KEY}"
+# Configure the Gemini API key
+GEMINI_API_KEY = os.environ.get("AIzaSyAQaz1GUX8i3A3XPq-wAhB1e4260eGH7JY")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY environment variable not set")
+
+# Initialize the Gemini API with your API key
+genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel('gemini-pro')
 
 @app.route("/")
 def index():
@@ -17,31 +22,17 @@ def generate():
     try:
         data = request.json
         age = data.get('age')
-        job = data.get('job')
+        profession = data.get('profession')
 
-        if not age or not job:
-            return jsonify({"error": "Age and job fields are required"}), 400
+        if not age or not profession:
+            return jsonify({"error": "Age and profession fields are required"}), 400
 
         # Construct the AI prompt
-        prompt = f"Generate a personalized career plan for a {age}-year-old working as a {job}."
+        prompt = f"Generate a personalized investment plan for a {age}-year-old working as a {profession}. Consider their potential risk tolerance, time horizon, and financial goals. Provide a brief overview of suitable asset classes and investment strategies."
 
-        # Gemini API request payload
-        payload = {
-            "contents": [{"parts": [{"text": prompt}]}]
-        }
-        
-        headers = {"Content-Type": "application/json"}
-
-        # Send request to Gemini API
-        response = requests.post(GEMINI_API_URL, json=payload, headers=headers)
-
-        if response.status_code != 200:
-            return jsonify({"error": "Failed to fetch response from Gemini API"}), 500
-
-        result = response.json()
-
-        # Extract AI-generated text
-        generated_text = result.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "No response from AI.")
+        # Generate content using Gemini API
+        response = model.generate_content(prompt)
+        generated_text = response.text
 
         return jsonify({"generated_text": generated_text})
 
