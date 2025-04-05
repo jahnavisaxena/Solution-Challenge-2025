@@ -7,25 +7,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Set up environment variables
-      run: echo "Environment variables set"
-      env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-
-    - name: Test or run app
-      run: python app.py
-      env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Run app
+        run: |
+          echo "Running the app..."
+          python app.py
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
