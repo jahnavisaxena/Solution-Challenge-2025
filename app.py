@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from google import genai
+import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS  
@@ -9,7 +9,10 @@ api_key = os.getenv("GEMINI_API_KEY")
 
 app = Flask(__name__)
 CORS(app) 
-client = genai.Client(api_key=api_key)
+
+# Configure Gemini
+genai.configure(api_key=api_key)
+model = genai.GenerativeModel('models/gemini-1.5-pro')  
 
 @app.route("/")
 def index():
@@ -25,19 +28,17 @@ def generate():
         if not age or not profession:
             return jsonify({"error": "Age and profession fields are required"}), 400
 
-        # Construct the AI prompt with an Indian context
+        # Create the prompt
         prompt = (
-            f"Generate a personalized investment plan for a {age}-year-old working as a {profession } in India. "
-            "Consider factors such as India's taxation policies, inflation, government schemes, and investment options. "
-            "Suggest asset allocations including options like mutual funds, fixed deposits, PPF, NPS, gold, real estate, and stock market investments. "
-            "Take into account risk tolerance, investment horizon, and financial goals. "
-            "Provide a structured breakdown with key recommendations for wealth creation and financial security."
+            f"Generate a personalized investment plan for a {age}-year-old working as a {profession} in India. "
+            "Consider India's taxation policies, inflation, government schemes, and investment options. "
+            "Suggest asset allocations including mutual funds, fixed deposits, PPF, NPS, gold, real estate, and stock market investments. "
+            "Factor in risk tolerance, investment horizon, and financial goals. "
+            "Give a structured breakdown with key recommendations for wealth creation and financial security."
         )
 
-        # Generate content using the AI model
-        response = client.models.generate_content(
-            model="gemini-2.0-flash", contents=prompt
-        )
+        # Generate content using the Gemini model
+        response = model.generate_content(prompt)
         generated_text = response.text
 
         return jsonify({"generated_text": generated_text})
