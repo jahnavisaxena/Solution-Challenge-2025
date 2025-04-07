@@ -1,8 +1,12 @@
 <h1>Solution Challenge 2025</h1>
 
 # 🧠 Aurelian AI – Your Smart Investment Assistant
+*Aurelian AI** is a smart investment assistant that suggests personalized investment plans based on your **age** and **profession**. Built using **Flask** and powered by **Google's Gemini API**, it provides an intuitive, AI-driven experience to help users make informed financial decisions.
 
-**Aurelian AI** is a smart investment assistant that suggests personalized investment plans based on your **age** and **profession**. Built using **Flask** and powered by **Google's Gemini API**, it provides an intuitive, AI-driven experience to help users make informed financial decisions.
+---
+## 🌐 Live Demo
+
+🚀 [Click here to try Aurelian AI](https://aurelian-ai-vfax.onrender.com/)
 
 ---
 
